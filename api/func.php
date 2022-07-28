@@ -95,17 +95,17 @@ class sentenceInfo
     {
         //connect
         $link = mysqli_init();
-        $link->set_charset('latin1');
         $link->ssl_set(NULL, NULL, "/etc/pki/tls/certs/ca-bundle.crt", NULL, NULL);
-        $link->set_charset('latin1');
-        mysqli_set_charset($link , 'latin1');
+        //need to use mysqli_set_charset() after real_connect()
         $link->real_connect($this->host, $this->user, $this->password, $this->dbname);
-        mysqli_set_charset($link , 'latin1');
+        mysqli_set_charset($link,'latin1');
+        $link->set_charset('latin1');
         if ($link->connect_errno) {
             throw new Exception("Connect failed: {$link->connect_error}");
         }
         $sql = "select * from `sentenceinfo` where `sId`={$id}";
         $result = $link->query($sql);
+        var_dump($result->fetch_object());
         if ($result) {
             // Cycle through results
             if ($row = $result->fetch_object()) {
