@@ -1,0 +1,567 @@
+<?php
+$formData = $this->getFormData();
+$regData = Mage::registry('registration_data');
+$products = $regData['registered_product'];
+$is_edit = $this->getRequest()->getParam('edit');
+$dateFormatIso = Mage::app()->getLocale()->getDateFormat(Mage_Core_Model_Locale::FORMAT_TYPE_SHORT);
+switch ($dateFormatIso) {
+    case 'dd/MM/yyyy':
+        $dateFormat = 'd-sl-m-sl-Y';
+        break;
+    case 'MM/dd/yyyy':
+        $dateFormat = 'm-sl-d-sl-Y';
+        break;
+    case 'M/d/yy':
+        $dateFormat = 'm-sl-d-sl-Y';
+        break;
+    default:
+        $dateFormat = 'm-sl-d-sl-Y';
+        break;
+}
+?>
+<!--<script type="text/javascript" src="<?php echo $this->getSkinUrl('js/datepicker.js') ?>"></script>--->
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<!-- this css is included in productregistration.xml because of the IE problem
+<link rel="stylesheet" href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
+-->
+<script src="//code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+<script type="text/javascript" src="<?php echo $this->getSkinUrl('js/jquery.autocomplete.min.js') ?>"></script>
+<script type="text/javascript">
+    jQuery.noConflict();
+</script>
+
+<div class="account-create">
+    <?php echo $this->getChildHtml('form_fields_before') ?>
+    <?php echo $this->getMessagesBlock()->getGroupedHtml() ?>
+
+    <div class="account-create-info">
+        <h2><?php echo $this->__('Let’s get started'); ?></h2>
+        <?php echo $this->getLayout()->createBlock('cms/block')->setBlockId('warranty-product-top')->toHtml();  ?>
+    </div>
+    <?php if($is_edit == 1):?>
+        <input type="hidden" value="<?php echo $products['brand_id'][0]?>" id="_brand_id"/>
+        <input type="hidden" value="<?php echo $products['product_id'][0]?>" id="_product_id"/>
+    <?php endif;?>
+    <form action="<?php echo $this->getUrl('productregistration/productregistration/registerProduct', array('_secure' => true)); ?>" id="registerProductsForm" method="post" enctype="multipart/form-data">
+        <ul>
+            <li>
+                <div class="input-box" style="display:none">
+                    <label for="firstname"><?php echo $this->__('First Name') ?> <span class="required">*</span></label><br/>
+                    <input name="customer[firstname]" title="<?php echo $this->__('First Name') ?>"
+                           value="<?php echo $formData['customer']['firstname']; ?>" class="required-entry input-text"
+                           type="text"/>
+                </div>
+
+                <div class="input-box" style="display: none">
+                    <label for="lastname"><?php echo $this->__('Last Name') ?> <span
+                            class="required">*</span></label><br/>
+                    <input name="customer[lastname]" title="<?php echo $this->__('Last Name') ?>"
+                           value="<?php echo $formData['customer']['lastname']; ?>" class="required-entry input-text"
+                           type="text"/>
+                </div>
+
+                <div class="clear"></div>
+
+                <div class="input-box" style="display: none">
+                    <label for="e-mail"><?php echo $this->__('E-Mail') ?> <span class="required">*</span></label><br/>
+                    <input name="customer[email]" title="<?php echo $this->__('E-Mail') ?>"
+                           value="<?php echo $formData['customer']['email']; ?>"
+                           class="required-entry input-text validate-email" type="text"/>
+                </div>
+
+                <div class="input-box" style="display: none">
+                    <label for="mobile"><?php echo $this->__('Mobile') ?> <span class="required">*</span></label><br/>
+                    <input name="customer[mobile]" title="<?php echo $this->__('Mobile') ?>"
+                           value="<?php echo $formData['customer']['mobile']; ?>" class="required-entry input-text"
+                           type="text"/>
+                </div>
+
+            </li>
+        </ul>
+        <div id="jcp-product-information" class="reg-form">
+            <div class="groups-select">
+                <h4 class="legend"><?php echo $this->__('Product Information') ?></h4>
+                <ul>
+                    <?php if (count($formData['registered_product']) == 0): ?>
+                        <li class="fields">
+                            <div class="input-box">
+                                <?php echo $this->getBrandProductHtmlOptions(); ?>
+                            </div>
+                            <?php if (Mage::helper('pws_productregistration')->useProductSkuInput()): ?>
+                                <div class="input-box product-box">
+                                    <input name="registered_product[product_sku][]"
+                                           title="<?php echo $this->__('Product Sku') ?>" value=""
+                                           class="required-entry input-text" type="text"/>
+                                </div>
+
+                            <?php elseif (Mage::helper('pws_productregistration')->useProductNameInput()): ?>
+                                <div class="input-box product-box">
+                                    <input id="product" class="required-entry input-text" name="registered_product[product_id][]"
+                                           title="Product" />
+                                </div>
+
+                            <?php else: ?>
+                                <div class="input-box product-box">
+                                    <input id="search_product" class="required-entry input-text"
+                                           title="Product" placeholder="<?php echo $this->__('Please input the product name')?>" autocomplete="off"/>
+                                </div>
+                            <?php endif; ?>
+                            <div class="clear"></div>
+
+                            <input id="product_id" name="registered_product[product_id][]" type="hidden"/>
+
+                            <div class="input-box">
+                                <!---<input name="registered_product[date_of_purchase][]" title="<?php echo $this->__('Date of Purchase') ?>
+				            (<?php echo $dateFormatIso; ?>: <?php echo date($dateFormatIso); ?>)" value=""
+				            class="required-entry input-text dateformat-<?php echo $dateFormat; ?> datepicker" type="text" id="dp_<?php echo microtime(); ?>" />-->
+                                <input name="registered_product[date_of_purchase][]"
+                                       title="<?php echo $this->__('Date of Purchase') ?>" value="<?php if($is_edit == 1) echo $products['date_of_purchase'][0]?>"
+                                       class="required-entry input-text datepicker" type="text" placeholder="<?php echo $this->__('Date of Purchase') ?>*"
+                                       id="warrenty_jquery_datepicker"/>
+                            </div>
+                            <div class="input-box">
+                                <input name="registered_product[serial_number][]"
+                                       title="<?php echo $this->__('Serial Number* (Please input NA if not applicable)'); ?>" value="<?php if($is_edit == 1) echo $products['serial_number'][0]?>" class="required-entry input-text" placeholder="<?php echo $this->__('Serial Number* (Please input NA if not applicable)'); ?>"
+                                       type="text"/>
+                            </div>
+                            <div class="clear"></div>
+                            <div class="input-box">
+                                <input name="registered_product[promo_code][]"
+                                       title="<?php echo $this->__('Promotion Code'); ?>" value="<?php if($is_edit == 1) echo $products['promo_code'][0]?>" class="input-text" placeholder="<?php echo $this->__('Promotion Code'); ?>"
+                                       type="text"/>
+                            </div>
+                            <div class="clear"></div>
+                            <div class="input-box">
+                                <label for="registered_brand[invoice_image][]">
+                                    <?php echo $this->__('invoice image') ?></label><br/>
+                                <!--                                <input name="invoice_image" id="invoice_image" title="--><?php //echo $this->__('Invoice Image (not greater than 5M)') ?><!--" type="file" accept="image/*"/>-->
+                                <div class="file-wrap">
+                                    <div><?php echo $this->__("Choose file") ?></div>
+                                    <input name="invoice_image" id="invoice_image" title="<?php echo $this->__('invoice image (not greater than 5M, JPG and PNG file only)') ?>" type="file" accept="image/*"/>
+                                </div>
+                                <div id="removeImg" style="display:none;"><a href="javascript:void()">X</a></div>
+                            </div>
+                            <div class="clear"></div>
+                            <div><img src="" id="upload_image" style="display:none;"/></div>
+                            <div class="input-box">
+                                <label for="registered_brand[card_image][]">
+                                    <?php echo $this->__('Warranty Card Image') ?></label><br/>
+                                <!--                                <input name="invoice_image" id="invoice_image" title="--><?php //echo $this->__('Invoice Image (not greater than 5M)') ?><!--" type="file" accept="image/*"/>-->
+                                <div class="file-wrap">
+                                    <div><?php echo $this->__("Choose file") ?></div>
+                                    <input name="card_image" id="card_image" title="<?php echo $this->__('Warranty Card Image (not greater than 5M, JPG and PNG file only)') ?>" type="file" accept="image/*"/>
+                                </div>
+                                <div id="removeCard" style="display:none;"><a href="javascript:void()">X</a></div>
+                            </div>
+                            <div class="clear"></div>
+                            <div><img src="" id="upload_card" style="display:none;"/></div>
+                            <div class="required-note">
+                                <p><span class="required">*</span><?php echo $this->__('Required field'); ?>
+                                </p>
+                            </div>
+                            <div class="encounter-text">
+                                <p>
+                                    <?php echo $this->__('If you encounter any problems, please feel free to contact us at'); ?>
+                                    <?php echo Mage::getStoreConfig("trans_email/ident_general/email"); ?>
+                                </p>
+                            </div>
+                            <div class="clear"></div>
+                            <div class="agree-box">
+                                <p>
+                                    <input type="checkbox" name="agreee" value="agree" class="required-entry">
+                                    <span class="required">* </span>
+                                    <?php echo $this->__('I agree to the Conditions of the Online Warranty Registration and the Standard Terms and Conditions for Use of this Website.'); ?>
+                                <p class="btn-tnc-note">
+                                    <?php echo $this->__('Please make sure you have read the Warranty Registration Terms and Conditions before submitting the form. Also, please note the'); ?>
+
+                                    <b><u><a href="/warranty-brand-info"><?php echo $this->__('Brand specific warranty information found here'); ?></a></u></b>
+                                </p>
+                                </p>
+                            </div>
+                        </li>
+                    <?php else: ?>
+
+                        <li class="fields">
+                            <div class="input-box">
+                                <?php echo $this->getBrandProductHtmlOptions(); ?>
+                            </div>
+                            <?php if (Mage::helper('pws_productregistration')->useProductSkuInput()): ?>
+                                <div class="input-box product-box">
+                                    <label for="registered_product[product_sku][]"><?php echo $this->__('Product Sku') ?>
+                                        <span class="required">*</span></label><br/>
+                                    <input name="registered_product[product_sku][]"
+                                           title="<?php echo $this->__('Product Sku') ?>"
+                                           value="<?php echo $registeredProduct['product_sku']; ?>"
+                                           class="required-entry input-text" type="text"/>
+                                </div>
+                            <?php elseif (Mage::helper('pws_productregistration')->useProductNameInput()): ?>
+                                <div class="input-box product-box">
+                                    <input id="search_product" class="required-entry input-text"
+                                           title="Product" placeholder="<?php echo $this->__('Please input the product name')?>"/>
+                                </div>
+                            <?php else: ?>
+                                <div class="input-box product-box">
+                                    <input id="search_product" class="required-entry input-text" value="<?php if($is_edit == 1) echo $products['product_name']?>"
+                                           title="Product" placeholder="<?php echo $this->__('Please input the product name')?>"/>
+                                </div>
+
+                            <?php endif; ?>
+                            <div class="clear"></div>
+
+                            <input id="product_id" name="registered_product[product_id][]" value="<?php if($is_edit == 1) echo $products['product_id'][0]?>" type="hidden"/>
+
+                            <div class="input-box">
+                                <?php
+                                /*<input name="registered_product[date_of_purchase][]" title="<?php echo $this->__('Date of Purchase') ?>
+                               (<?php echo $dateFormatIso; ?>: <?php echo date($dateFormatIso); ?>)" value="<?php //echo $registeredProduct['date_of_purchase']; ?>"
+                               class="required-entry input-text dateformat-<?php echo $dateFormat; ?> datepicker" type="text" id="dp_<?php echo microtime(); ?>" />
+                               */
+                                ?>
+                                <input name="registered_product[date_of_purchase][]"
+                                       title="<?php echo $this->__('Date of Purchase') ?>" value="<?php if($is_edit == 1) echo $products['date_of_purchase'][0]?>"
+                                       class="required-entry input-text datepicker" type="text" placeholder="<?php echo $this->__('Date of Purchase') ?>*"
+                                       id="warrenty_jquery_datepicker" style="width:254px;"/>
+                            </div>
+                            <div class="input-box">
+                                <input name="registered_product[serial_number][]"
+                                       title="<?php echo $this->__('Serial Number* (Please input NA if not applicable)'); ?>" value="<?php if($is_edit == 1) echo $products['serial_number'][0]?>" class="required-entry input-text" placeholder="<?php echo $this->__('Serial Number* (Please input NA if not applicable)'); ?>"
+                                       type="text"/>
+                            </div>
+                            <div class="clear"></div>
+                            <div class="input-box">
+                                <input name="registered_product[promo_code][]"
+                                       title="<?php echo $this->__('Promotion Code'); ?>" value="<?php if($is_edit == 1) echo $products['promo_code'][0]?>" class="input-text" placeholder="<?php echo $this->__('Promotion Code'); ?>"
+                                       type="text"/>
+                            </div>
+                            <div class="clear"></div>
+                            <div class="input-box">
+                                <label for="registered_brand[invoice_image][]">
+                                    <?php echo $this->__('Invoice Image (not greater than 5M)') ?></label><br/>
+                                <!--                                <input name="registered_product[invoice_image][]" id="invoice_image" title="--><?php //echo $this->__('Invoice Image (not greater than 5M)') ?><!--" type="file" accept="image/*"/>-->
+                                <div class="file-wrap">
+                                    <div><?php echo $this->__("Choose file") ?></div>
+                                    <input name="invoice_image" id="invoice_image" title="<?php echo $this->__('Invoice Image (not greater than 5M)') ?>" type="file" accept="image/*"/>
+                                </div>
+                                <div id="removeImg" style="display:none;"><a href="javascript:void()">X</a></div>
+                            </div>
+                            <div class="clear"></div>
+                            <div><img src="" id="upload_image" style="display:none;"/></div>
+                            <div class="clear"></div>
+                            <div class="input-box">
+                                <label for="registered_brand[card_image][]">
+                                    <?php echo $this->__('Invoice Image (not greater than 5M)') ?></label><br/>
+                                <!--                                <input name="invoice_image" id="invoice_image" title="--><?php //echo $this->__('Invoice Image (not greater than 5M)') ?><!--" type="file" accept="image/*"/>-->
+                                <div class="file-wrap">
+                                    <div><?php echo $this->__("Choose file") ?></div>
+                                    <input name="card_image" id="card_image" title="<?php echo $this->__('Invoice Image (not greater than 5M)') ?>" type="file" accept="image/*"/>
+                                </div>
+                                <div id="removeCard" style="display:none;"><a href="javascript:void()">X</a></div>
+                            </div>
+                            <div class="clear"></div>
+                            <div><img src="" id="upload_card" style="display:none;"/></div>
+                            <div class="required-note">
+                                <p><span class="required">*</span><?php echo $this->__('Required fields'); ?> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                    <?php echo $this->__('If you encounter any problems, please feel free to contact us at'); ?>
+                                    <?php echo Mage::getStoreConfig("trans_email/ident_general/email"); ?>
+                                </p>
+                            </div>
+                            <div class="clear"></div>
+                            <div class="agree-box">
+                                <input type="checkbox" name="agreee" value="agree" class="required-entry"> <span
+                                    class="required">*</span> <?php echo $this->__('I agree to the Conditions of the Online Warranty Registration and the Standard Terms and Conditions for Use of this Website.'); ?>
+                            </div>
+                        </li>
+
+                    <?php endif; ?>
+                </ul>
+            </div>
+        </div>
+
+        <div class="submit-button-div">
+            <button type="submit" class="button" title="<?php echo $this->__('Next') ?>">
+                <span><span><?php echo $this->__('Next') ?></span></span></button>
+        </div>
+    </form>
+    <div class="warranty-line"></div>
+    <div class="condition-warranty">
+        <?php echo $this->getLayout()->createBlock('cms/block')->setBlockId('condition-warranty')->toHtml(); ?>
+    </div>
+</div>
+
+<?php
+$row_template = '<li>';
+
+if (Mage::helper('pws_productregistration')->useProductSkuInput()):
+    $row_template .= '<div class="input-box">
+		                <label for="registered_product[product_sku][]">' . $this->__('Product Sku') . '<span class="required">*</span></label><br />
+		                ' . '<input name="registered_product[product_sku][]" title="' . $this->__('Product Sku') . '" value="" class="required-entry input-text" type="text" />'
+        . '</div>';
+elseif (Mage::helper('pws_productregistration')->useProductNameInput()):
+    $row_template .= '<div class="input-box">
+		                <label for="registered_product[product_name][]">' . $this->__('Product Name') . '<span class="required">*</span></label><br />
+		                ' . '<input name="registered_product[product_name][]" title="' . $this->__('Product Name') . '" value="" class="required-entry input-text product-name" type="text" id="pn_{{id}}" />'
+        . '</div>';
+else:
+    $row_template .= '<div class="input-box">
+		                <label for="registered_product[product_id][]">' . $this->__('Product Name') . '<span class="required">*</span></label><br />
+		                ' . $this->getProductHtmlOptions($defValue = null, $name = 'registered_product[product_id][]', $id = 'product', $title = 'Product') . '
+		            </div>';
+endif;
+$row_template .= '<div class="input-box-short">
+		                <label for="registered_product[serial_number][]">' . $this->__('Serial Number* (Please input NA if not applicable)') . '</label><br />
+		                <input name="registered_product[serial_number][]" title="' . $this->__('Serial Number* (Please input NA if not applicable)') . '" value="" class="input-text" type="text" />
+		            </div>
+
+		            <div class="input-box-short">
+		                <label for="registered_product[date_of_purchase][]">' . $this->__('Date of Purchase') . '<span class="required">*</span></label><br />
+
+		            </div>
+
+		            <div class="input-box">
+		                <label for="registered_product[purchased_from][]">' . $this->__('Purchased from') . '<span class="required">*</span></label><br />
+		                <input name="registered_product[purchased_from][]" title="' . $this->__('Purchased from') . '" value="" class="required-entry input-text" type="text" />
+		            </div>
+
+		            <div class="input-box-actions">
+		               <a href="#" class="remove_row">remove</a>
+		            </div>
+		         </li>';
+$row_template = str_replace(array("\n", "\r\n", '"'), array("", "", '\"'), $row_template);
+$row_template = preg_replace('/\s\s+/', ' ', $row_template);
+?>
+
+<script type="text/javascript">
+    var $jq = jQuery.noConflict();
+    $jq(function () {
+        $jq(".productregistration-productregistration-registerproduct  #warrenty_jquery_datepicker").datepicker({
+            dateFormat: 'yy-mm-dd',
+            showOtherMonths: true,
+            selectOtherMonths: true,
+            maxDate: "+0D"
+        });
+    });
+
+    $jq(document).on("click","#tab-suggestion td",function(){
+        $jq("#search_product").val($jq("#"+this.id).html());
+        $jq("#product_id").val(this.id);
+        $jq("#tab-suggestion").remove();
+    });
+
+    $jq(document).ready(function () {
+        function handleSuggest() {
+            var brand_id_value = $jq("#brand_id").val();
+            <?php
+            if(Mage::app()->getFrontController()->getRequest()->isSecure()){
+                $getRegisterProductUrl=$this->getUrl('productregistration/productregistration/getRegisterProduct',array('_secure' => true));
+            }else{
+                $getRegisterProductUrl=$this->getUrl('productregistration/productregistration/getRegisterProduct');
+            }
+            ?>
+            $jq.get('<?php echo $getRegisterProductUrl; ?>' + '?brand_id=' + brand_id_value, function (data, status) {
+                var toAppend = '';
+                $jq("#tab-suggestion-wrapper").remove();
+                var obj = $jq.parseJSON(data);
+//                $jq('#product').empty();
+                var product = $jq('#search_product').val();
+                var keyword = [];
+                var productId = [];
+                //if(typeof data === 'object'){
+                for (var i = 0; i < obj.length; i++) {
+                    if(product != ''){
+                        if(obj[i]['label'].toLowerCase().indexOf(product.toLowerCase()) != -1) {
+                            //toAppend += '<option value="' + obj[i]['value'] + '">' + obj[i]['label'] + '</option>';
+                            keyword.push(obj[i]['label']);
+                            productId.push(obj[i]['value']);
+                        }
+                    }else{
+                        keyword.push(obj[i]['label']);
+                        productId.push(obj[i]['value']);
+                    }
+                }
+                if(keyword.length != 0 ){
+                    var TableContent = "";
+                    for(var i = 0; i < keyword.length; i++){
+                        TableContent += "" +
+                            "<tr>" +
+                            "<td id='"+productId[i]+"'>"+keyword[i]+"</td>" +
+                            "</tr>";
+                    }
+                    //table表单不存在时进行创建
+                    if(!$jq("#tab-suggestion-wrapper").length){
+                        var Table = document.createElement('table');
+                        Table.id = "tab-suggestion";
+                        var Table_Wrapper = document.createElement('div');
+                        Table_Wrapper.id = "tab-suggestion-wrapper";
+                        $jq(Table_Wrapper).html(Table);
+                        $jq(Table_Wrapper).width(jQuery('#search_product').width());
+                        $jq(".product-box").append(Table_Wrapper);
+                    }
+                    $jq("#tab-suggestion").html(TableContent);
+                } else{
+                    $jq("#tab-suggestion-wrapper").remove();
+                }
+                //}
+//                $jq('#product').append(toAppend);
+            });
+        }
+        $jq('#search_product').bind('input propertychange',handleSuggest);
+        $jq('#search_product').focus(function () {
+            if($jq(this).val()==''){
+                handleSuggest();
+            }
+        });
+        $jq("#brand_id").change(function () {
+            $jq("#tab-suggestion-wrapper").remove();
+            $jq("#search_product").val('');
+
+        });
+    });
+
+    var contactForm = new VarienForm('registerProductsForm', true);
+
+    var suggestions = <?php echo $this->getProductJsonOptions(); ?>
+
+        //datepicker settings
+        datepickerGeneralConfig = {
+            "nodrag": 1,
+            "lang": "en",
+            "format": ["<?php echo $dateFormat; ?>"],
+            "cellformat": ["<?php echo $dateFormat; ?>"]
+        }
+
+    /*datePickerController.setGlobalVars(datepickerGeneralConfig);*/
+
+    var template = "<?php echo $row_template; ?>";
+
+    var initJs = function () {
+        $$('.add_new_row').each(function (indexAdd) {
+            indexAdd.observe('click', function (event) {
+                var templateNew = template.replace('{{id}}', new Date().getTime());
+                this.up('ul').insert(templateNew, {position: 'bottom'});
+
+
+                // --------------- set events for last inserted row
+
+                //add datepicker
+                datePickerController.createDatePicker({
+                    id: this.up('ul').down('li:last-child input.datepicker').id,
+                    format: 'm-sl-d-sl-Y'
+                });
+
+                this.up('ul').down('li:last-child input.datepicker').observe('click', function (event) {
+                    datePickerController.show(this.up('ul').down('li:last-child input.datepicker').id);
+                    Event.stop(event);
+                });
+
+                //remove row link
+                this.up('ul').down('li:last-child .remove_row').observe('click', function (event) {
+                    this.up('li').remove();
+                    Event.stop(event);
+                });
+
+                jQuery('.product-name').autocomplete({
+                    lookup: suggestions
+                });
+
+                Event.stop(event);
+            })
+        });
+
+        $$('.remove_row').each(function (indexRemove) {
+            indexRemove.observe('click', function (event) {
+                this.up('li').remove();
+                Event.stop(event);
+
+                Event.stop(event);
+            });
+        });
+
+        /*$$('.datepicker').each(function(indexDate){
+         datePickerController.createDatePicker({id:	indexDate.id,format: '
+        <?php echo $dateFormat; ?>'});
+
+         indexDate.observe('click',function(event){
+         datePickerController.show(indexDate.id);
+         Event.stop(event);
+         });
+
+         });*/
+
+
+    }
+
+    initJs();
+
+    jQuery(function () {
+        jQuery('.product-name').autocomplete({
+            lookup: suggestions
+        });
+
+
+        jQuery("#invoice_image").change(function() {
+            if (this.files && this.files[0]) {
+
+                var reader = new FileReader();
+
+                reader.onload = function(e) {
+                    jQuery("#upload_image").css('display','inline-block');
+                    jQuery('#upload_image').attr('src', e.target.result);
+                    jQuery('#removeImg').css('display','inline-block').css('margin-left','10px').css('float','right');
+                }
+
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+
+        jQuery("#removeImg").click(function(){
+            jQuery("#upload_image").css('display','none');
+            jQuery("#removeImg").css('display','none');
+            jQuery("#invoice_image").val('');
+        });
+
+
+        jQuery("#card_image").change(function() {
+            if (this.files && this.files[0]) {
+
+                var reader = new FileReader();
+
+                reader.onload = function(e) {
+                    jQuery("#upload_card").css('display','inline-block');
+                    jQuery('#upload_card').attr('src', e.target.result);
+                    jQuery('#removeCard').css('display','inline-block').css('margin-left','10px').css('float','right');
+                }
+
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+
+        jQuery("#removeCard").click(function(){
+            jQuery("#upload_card").css('display','none');
+            jQuery("#removeCard").css('display','none');
+            jQuery("#card_image").val('');
+        });
+
+
+        //if return edit page action
+        <?php if($is_edit == 1){?>
+        var brand = jQuery("#_brand_id").val();
+        var product = jQuery("#_product_id").val();
+        jQuery("#brand_id option[value='"+brand+"']").prop('selected',true);
+        <?php $getRegisterProductUrl=$this->getUrl('productregistration/productregistration/getRegisterProduct',array('_secure'=>true));?>
+        jQuery.get('<?php echo $getRegisterProductUrl; ?>' + '?brand_id=' + brand, function (data, status) {
+            var toAppend = '<option value=""><?php echo $this->__('Please select Product Name') ?>*</option>';
+            var obj = jQuery.parseJSON(data);
+            //if(typeof data === 'object'){
+            for (var i = 0; i < obj.length; i++) {
+                toAppend += '<option value="' + obj[i]['value'] + '">' + obj[i]['label'] + '</option>';
+            }
+            //}
+//            jQuery('#product').empty();
+//            jQuery('#product').append(toAppend);
+//            jQuery("#product option[value='"+product+"']").prop('selected',true);
+        });
+        <?php }?>
+
+
+    });
+</script>
