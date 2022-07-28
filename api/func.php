@@ -133,6 +133,8 @@ class sentenceInfo
         $link = mysqli_init();
         $link->ssl_set(NULL, NULL, "/etc/pki/tls/certs/ca-bundle.crt", NULL, NULL);
         $link->real_connect($this->host, $this->user, $this->password, $this->dbname);
+        mysqli_set_charset($link,'latin1');
+        $link->set_charset('latin1');
         if ($link->connect_errno) {
             throw new Exception("Connect failed: {$link->connect_error}");
         }
