@@ -31,3 +31,7 @@ require 'func.php';
 
 
 echo prepareFields("");
+
+$instance = new sentenceInfo();
+$instance->loadById(1);
+

@@ -100,7 +100,15 @@ class sentenceInfo
         if ($link->connect_errno) {
             throw new Exception("Connect failed: {$link->connect_error}");
         }
+        printf("Initial character set: %s\n", mysqli_character_set_name($link));
         $sql = "select * from `sentenceinfo` where `sId`={$id}";
+        $result = $link->query($sql);
+        var_dump($result);
+        mysqli_set_charset($link, "utf8mb4");
+        $sql = "select * from `sentenceinfo` where `sId`={$id}";
+        $result = $link->query($sql);
+        var_dump($result);
+        printf("Current character set: %s\n", mysqli_character_set_name($link));
         $result = $link->query($sql);
         if ($result) {
             // Cycle through results
