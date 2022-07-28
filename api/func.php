@@ -104,7 +104,7 @@ class sentenceInfo
         $sql = "select * from `sentenceinfo` where `sId`={$id}";
         $result = $link->query($sql);
         var_dump($row = $result->fetch_object());
-        mysqli_set_charset($link, "utf8mb4");
+        mysqli_set_charset($link, "latin1");
         $sql = "select * from `sentenceinfo` where `sId`={$id}";
         $result = $link->query($sql);
         var_dump($row = $result->fetch_object());
