@@ -103,11 +103,11 @@ class sentenceInfo
         printf("Initial character set: %s\n", mysqli_character_set_name($link));
         $sql = "select * from `sentenceinfo` where `sId`={$id}";
         $result = $link->query($sql);
-        var_dump($result);
+        var_dump($row = $result->fetch_object());
         mysqli_set_charset($link, "utf8mb4");
         $sql = "select * from `sentenceinfo` where `sId`={$id}";
         $result = $link->query($sql);
-        var_dump($result);
+        var_dump($row = $result->fetch_object());
         printf("Current character set: %s\n", mysqli_character_set_name($link));
         $result = $link->query($sql);
         if ($result) {
