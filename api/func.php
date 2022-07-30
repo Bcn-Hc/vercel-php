@@ -162,12 +162,25 @@ class sentenceInfo
     /**
      * PlanetScale only return charset utf8
      */
-    public static function toWindows1252(SentenceInfo $info)
+    public static function toWindows1252(SentenceInfo &$info)
     {
         $stringParams = ['memo', 'content', 'answer', 'translation', 'tips'];
         foreach ($stringParams as $stringParam) {
             if ($info->$stringParam) {
                 $info->$stringParam=mb_convert_encoding($info->$stringParam, 'windows-1252','UTF8' );
+            }
+        }
+    }
+
+    /**
+     * PlanetScale only return charset utf8
+     */
+    public static function toUtf8(SentenceInfo &$info)
+    {
+        $stringParams = ['memo', 'content', 'answer', 'translation', 'tips'];
+        foreach ($stringParams as $stringParam) {
+            if ($info->$stringParam) {
+                $info->$stringParam=mb_convert_encoding($info->$stringParam, 'UTF8','windows-1252');
             }
         }
     }

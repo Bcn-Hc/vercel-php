@@ -60,6 +60,7 @@ switch ($_POST['action']) {
                 $info->setAnswer($params['answer']);
                 $info->setTranslation($params['translation']);
                 $info->setTips($params['tips']);
+                $info::toUtf8($info);
                 $info->save();
                 $result = [
                     'succeed' => ['message' => 'succeed to save', 'id' => $info->getId()]
