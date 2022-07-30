@@ -124,7 +124,7 @@ class sentenceInfo
         return $this;
     }
 
-    public function select($sql)
+    public function select($sql, $toWindows1252 = false)
     {
         //connect
         $link = mysqli_init();
@@ -138,7 +138,18 @@ class sentenceInfo
         if ($result) {
             // Cycle through results
             while ($row = $result->fetch_object()) {
-                array_push($ret, (array)$row);
+                if ($toWindows1252) {
+                    $rowArr = (array)$row;
+                    foreach ($rowArr as $k => $v) {
+                        if (is_string($v)) {
+                            $rowArr[$k] = mb_convert_encoding($v, 'windows-1252', 'UTF8');
+                        }
+                    }
+                    array_push($ret, $rowArr);
+                } else {
+                    array_push($ret, (array)$row);
+                }
+
             }
             // Free result set
             $result->close();

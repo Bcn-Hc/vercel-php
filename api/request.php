@@ -10,9 +10,8 @@ require_once 'func.php';
 switch ($_POST['action']) {
     case 'getDateList': {
         $info = new sentenceInfo();
-        $result = $info->select('select distinct `created_at` from `sentenceinfo` order by `created_at` desc;');
-        $jsonResult = json_encode($result);
-        echo mb_convert_encoding($jsonResult, 'windows-1252','UTF8');
+        $result = $info->select('select distinct `created_at` from `sentenceinfo` order by `created_at` desc;',1);
+        echo json_encode($result);
         break;
     }
     case 'search': {
@@ -24,9 +23,8 @@ switch ($_POST['action']) {
             unset($searchField);
             $whereStr = implode(' or ', $searchFields);
             $info = new sentenceInfo();
-            $result = $info->select("select * from `sentenceinfo` where {$whereStr}");
-            $jsonResult = json_encode($result);
-            echo mb_convert_encoding($jsonResult, 'windows-1252','UTF8');
+            $result = $info->select("select * from `sentenceinfo` where {$whereStr}",1);
+            echo json_encode($result);
             break;
         }
     }
@@ -42,12 +40,11 @@ switch ($_POST['action']) {
         $info = new sentenceInfo();
         if (count($dateSpan) > 0) {
             $whereStr = implode(' and ', $dateSpan);
-            $result = $info->select("select * from `sentenceinfo` where {$whereStr}");
+            $result = $info->select("select * from `sentenceinfo` where {$whereStr}",1);
         } else {
-            $result = $info->select("select * from `sentenceinfo`");
+            $result = $info->select("select * from `sentenceinfo`",1);
         }
-        $jsonResult = json_encode($result);
-        echo mb_convert_encoding($jsonResult, 'windows-1252','UTF8');
+        echo json_encode($result);
         break;
     }
     case 'saveRecord': {
