@@ -34,4 +34,4 @@ echo prepareFields("");
 
 $instance = new sentenceInfo();
 $instance->loadById(1);
-
+$instance::toWindows1252($instance);

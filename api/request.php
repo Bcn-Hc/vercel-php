@@ -11,7 +11,8 @@ switch ($_POST['action']) {
     case 'getDateList': {
         $info = new sentenceInfo();
         $result = $info->select('select distinct `created_at` from `sentenceinfo` order by `created_at` desc;');
-        echo json_encode($result);
+        $jsonResult = json_encode($result);
+        echo mb_convert_encoding($jsonResult, 'windows-1252','UTF8');
         break;
     }
     case 'search': {
@@ -24,7 +25,8 @@ switch ($_POST['action']) {
             $whereStr = implode(' or ', $searchFields);
             $info = new sentenceInfo();
             $result = $info->select("select * from `sentenceinfo` where {$whereStr}");
-            echo json_encode($result);
+            $jsonResult = json_encode($result);
+            echo mb_convert_encoding($jsonResult, 'windows-1252','UTF8');
             break;
         }
     }
@@ -44,7 +46,8 @@ switch ($_POST['action']) {
         } else {
             $result = $info->select("select * from `sentenceinfo`");
         }
-        echo json_encode($result);
+        $jsonResult = json_encode($result);
+        echo mb_convert_encoding($jsonResult, 'windows-1252','UTF8');
         break;
     }
     case 'saveRecord': {

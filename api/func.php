@@ -98,14 +98,11 @@ class sentenceInfo
         $link->ssl_set(NULL, NULL, "/etc/pki/tls/certs/ca-bundle.crt", NULL, NULL);
         //need to use mysqli_set_charset() after real_connect()
         $link->real_connect($this->host, $this->user, $this->password, $this->dbname);
-        mysqli_set_charset($link,'latin1');
-        $link->set_charset('latin1');
         if ($link->connect_errno) {
             throw new Exception("Connect failed: {$link->connect_error}");
         }
         $sql = "select * from `sentenceinfo` where `sId`={$id}";
         $result = $link->query($sql);
-        var_dump($result->fetch_object());
         if ($result) {
             // Cycle through results
             if ($row = $result->fetch_object()) {
@@ -133,8 +130,6 @@ class sentenceInfo
         $link = mysqli_init();
         $link->ssl_set(NULL, NULL, "/etc/pki/tls/certs/ca-bundle.crt", NULL, NULL);
         $link->real_connect($this->host, $this->user, $this->password, $this->dbname);
-        mysqli_set_charset($link,'latin1');
-        $link->set_charset('latin1');
         if ($link->connect_errno) {
             throw new Exception("Connect failed: {$link->connect_error}");
         }
@@ -151,6 +146,19 @@ class sentenceInfo
         //close
         $link->close();
         return $ret;
+    }
+
+    /**
+     * PlanetScale only return charset utf8
+     */
+    public static function toWindows1252(SentenceInfo $info)
+    {
+        $stringParams = ['memo', 'content', 'answer', 'translation', 'tips'];
+        foreach ($stringParams as $stringParam) {
+            if ($info->$stringParam) {
+                $info->$stringParam=mb_convert_encoding($info->$stringParam, 'windows-1252','UTF8' );
+            }
+        }
     }
 
     /**get collection*/
